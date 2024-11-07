@@ -29,7 +29,8 @@ export async function getTxIndex(txHash) {
 export async function getTxMerkleProof(txHash) {
     try {
         const proof = await axios.get(mempoolBaseUrl + '/tx/' + txHash + '/merkle-proof');
-        return proof.data.merkle;
+        const parsedProof = proof.data.merkle.map(bytes => '0x' + bytes);
+        return parsedProof;
     } catch (error) {
         console.error('API call failed:', error.message);
     }
