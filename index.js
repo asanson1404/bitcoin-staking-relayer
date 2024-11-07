@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { verifySPVABI } from './ABI/verifySPV.js';
 import { getParsedTxBlockHeader, getTxIndex, getTxMerkleProof } from './api.js';
+import { parseOpReturnData } from './utils.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -22,13 +23,26 @@ async function verifyBitcoinTx(txHash) {
         nBits,
         nonce
     } = await getParsedTxBlockHeader(txHash);
-
     // console.log('Version:', version);
     // console.log('Previous Block Hash:', previousBlockHash);
     // console.log('Merkle Root Hash:', merkleRootHash); 
     // console.log('Timestamp:', timestamp);
     // console.log('nBits:', nBits);
     // console.log('Nonce:', nonce);
+
+    const {
+        tag,
+        stakerPublicKey,
+        finalityProviderPublicKey,
+        stakingTime,
+        stakeAmountSat
+    } = await parseOpReturnData(txHash);
+    console.log('Tag:', tag);
+    console.log('Staker Public Key:', stakerPublicKey);
+    console.log('Finality Provider Public Key:', finalityProviderPublicKey);
+    console.log('Staking Time:', stakingTime);
+    console.log('Stake Amount (satoshis):', stakeAmountSat);
+
 
     const blockSequence = [{
         merkleRootHash: merkleRootHash,
@@ -38,14 +52,14 @@ async function verifyBitcoinTx(txHash) {
         timestamp: timestamp,
         version: version
     }];
-    console.log('Block Sequence:', blockSequence);
+    // console.log('Block Sequence:', blockSequence);
 
     const blockIndex = 0;
     const txIndex = await getTxIndex(txHash);
-    console.log('Block Index:', txIndex);
+    // console.log('Block Index:', txIndex);
 
     const merkleProof = await getTxMerkleProof(txHash);
-    console.log('Merkle Proof:', merkleProof);
+    // console.log('Merkle Proof:', merkleProof);
 
     try {
         const returnValue = await spvContract.verifyTxInclusion.staticCall(
@@ -60,23 +74,6 @@ async function verifyBitcoinTx(txHash) {
         console.error("Erreur lors de la transaction:", error.message);
     }
 
-    // // Execute the transaction
-    // const tx = await vaultContract.activateCluster(
-    //   ethers.hexlify(pubKey),
-    //   ethers.hexlify(signature),
-    //   "0x" + depositDataRoot,
-    //   clusterId
-    // );
-    // await tx.wait();
-    // console.log("Beacon deposit transaction is successful: ", tx.hash);
-
 }
 
-async function makeApiCall() {
-  await getParsedTxBlockHeader(txHash);
-  await getTxIndex(txHash);
-  await getTxMerkleProof(txHash);
-}
-
-// makeApiCall(); 
 await verifyBitcoinTx(txHash);

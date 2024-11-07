@@ -35,3 +35,12 @@ export async function getTxMerkleProof(txHash) {
         console.error('API call failed:', error.message);
     }
 }
+
+export async function getTxOutputs(txHash) {
+    try {
+        const tx = await axios.get(mempoolBaseUrl + '/tx/' + txHash);
+        return tx.data.vout;
+    } catch (error) {
+        console.error('API call failed:', error.message);
+    }
+}
