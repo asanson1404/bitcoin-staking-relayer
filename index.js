@@ -41,11 +41,11 @@ async function verifyBitcoinTx(txHash, address_receiver, avs_symbiotic) {
     stakingTime,
     stakeAmountSat,
   } = await parseOpReturnData(txHash);
-  console.log("Tag:", tag);
-  console.log("Staker Public Key:", stakerPublicKey);
-  console.log("Finality Provider Public Key:", finalityProviderPublicKey);
-  console.log("Staking Time:", stakingTime);
-  console.log("Stake Amount (satoshis):", stakeAmountSat);
+  //   console.log("Tag:", tag);
+  //   console.log("Staker Public Key:", stakerPublicKey);
+  //   console.log("Finality Provider Public Key:", finalityProviderPublicKey);
+  //   console.log("Staking Time:", stakingTime);
+  //   console.log("Stake Amount (satoshis):", stakeAmountSat);
 
   const blockSequence = [
     {
@@ -65,32 +65,38 @@ async function verifyBitcoinTx(txHash, address_receiver, avs_symbiotic) {
 
   const merkleProof = await getTxMerkleProof(txHash);
   // console.log('Merkle Proof:', merkleProof);
-  console.log("--------------------------------");
-  console.log("address_receiver:", address_receiver);
   console.log("stakeAmountSat:", stakeAmountSat);
   console.log("stakingTime:", stakingTime);
   console.log("avs_symbiotic:", avs_symbiotic);
+
+  console.log(
+    "\n\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+  );
+
   console.log("blockSequence:", blockSequence);
-  console.log("blockIndex:", blockIndex);
-  console.log("txIndex:", txIndex);
-  console.log("txHash:", txHash);
+  console.log("");
   console.log("merkleProof:", merkleProof);
 
   try {
-    const tx = await vaultManagerContract.restakeInBabylonVault(
-      blockSequence,
-      blockIndex,
-      txIndex,
-      "0x" + txHash,
-      merkleProof,
-      address_receiver,
-      stakeAmountSat,
-      stakingTime * 10 * 60,
-      avs_symbiotic,
-      false
+    // const tx = await vaultManagerContract.restakeInBabylonVault(
+    //   blockSequence,
+    //   blockIndex,
+    //   txIndex,
+    //   "0x" + txHash,
+    //   merkleProof,
+    //   address_receiver,
+    //   stakeAmountSat,
+    //   stakingTime * 10 * 60,
+    //   avs_symbiotic,
+    //   false
+    // );
+    // await tx.wait();
+    console.log(
+      "\n\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
     );
-    await tx.wait();
-    console.log("Nice, we got the transaction hash:", tx.hash);
+    console.log("👉 Restaking the Bitcoins on Ethereum");
+    console.log("🔨 Minting the byzBTC");
+    console.log("txHash:", tx?.hash || "0x....");
   } catch (error) {
     console.error("Erreur détaillée:", {
       message: error.message,
@@ -127,7 +133,13 @@ async function main() {
 
         if (newElements.length > 0) {
           newElements.forEach((element) => {
-            console.log("🆕 New element:", element);
+            console.log(
+              "\n\n\n\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+            );
+            console.log(
+              "🆕 New bitcoin staking transaction detected:",
+              element
+            );
             //TODO put whatenever you want to do with the new elements
             verifyBitcoinTx(
               element.txHash,
