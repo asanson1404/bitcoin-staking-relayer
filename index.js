@@ -7,16 +7,13 @@ import { stratVaultABI } from "./ABI/ABI.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-const txHash =
-  "68156d578d8faa5e1386184f7e4dd1be421dafd4563889a78817137f96877e13";
-
 // Connecting to ethereum
 const provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL);
 const signer = new ethers.Wallet(process.env.SIGNER_PK, provider);
 
 async function verifyBitcoinTx(txHash, address_receiver, avs_symbiotic) {
   // SPV contract address
-  const spvContract = new ethers.Contract(
+  const vaultManagerContract = new ethers.Contract(
     process.env.STRATEGY_VAULT_ADDR,
     stratVaultABI,
     signer
@@ -80,20 +77,7 @@ async function verifyBitcoinTx(txHash, address_receiver, avs_symbiotic) {
   console.log("merkleProof:", merkleProof);
 
   try {
-    console.log("Paramètres de l'appel:");
-    console.log({
-      blockSequence,
-      blockIndex,
-      txIndex,
-      txHash: "0x" + txHash,
-      merkleProof,
-      address_receiver,
-      stakeAmount: stakeAmountSat,
-      stakingDuration: stakingTime * 10 * 60,
-      avs_symbiotic,
-    });
-
-    const returnValue = await spvContract.restakeInBabylonVault.staticCall(
+    const tx = await vaultManagerContract.restakeInBabylonVault(
       blockSequence,
       blockIndex,
       txIndex,
@@ -105,7 +89,8 @@ async function verifyBitcoinTx(txHash, address_receiver, avs_symbiotic) {
       avs_symbiotic,
       false
     );
-    console.log("Valeur retournée:", returnValue.toString());
+    await tx.wait();
+    console.log("Nice, we got the transaction hash:", tx.hash);
   } catch (error) {
     console.error("Erreur détaillée:", {
       message: error.message,
